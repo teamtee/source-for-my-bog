@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+<!DOCTYPE MacConfig [
+    <!ELEMENT MacConfig (version, Api, PhyLogs*, DPDK, DpdkSharedResource, MlogVars*, Threads, BbuPoolConfig, PdcpConfig, CellConfig)>
+    <!ELEMENT version (#PCDATA)>
+    <!ELEMENT Api (wls_dev_name, numBlockTypes, blockType+)>
+    <!ELEMENT wls_dev_name (#PCDATA)>
+    <!ELEMENT numBlockTypes (#PCDATA)>
+    <!ELEMENT blockType (blockSize, blockCount)>
+    <!ELEMENT blockSize (#PCDATA)>
+    <!ELEMENT blockCount (#PCDATA)>
+    <!ELEMENT PhyLogs (IqLogs, DebugLogs)>
+    <!ELEMENT IqLogs (dlIqLog, ulIqLog, iqLogDumpToFile)>
+    <!ELEMENT dlIqLog (#PCDATA)>
+    <!ELEMENT ulIqLog (#PCDATA)>
+    <!ELEMENT iqLogDumpToFile (#PCDATA)>
+    <!ELEMENT DebugLogs (phyMlog, phyStats)>
+    <!ELEMENT phyMlog (#PCDATA)>
+    <!ELEMENT phyStats (#PCDATA)>
+    <!ELEMENT DPDK (dpdkFilePrefix, dpdkMemorySize, dpdkIovaMode)>
+    <!ELEMENT dpdkFilePrefix (#PCDATA)>
+    <!ELEMENT dpdkMemorySize (#PCDATA)>
+    <!ELEMENT dpdkIovaMode (#PCDATA)>
+    <!ELEMENT DpdkSharedResource (PciF1uAddr+, mempoolName+)>
+    <!ELEMENT PciF1uAddr (#PCDATA)>
+    <!ELEMENT mempoolName (#PCDATA)>
+    <!ELEMENT MlogVars (MlogSubframes, MlogCores, MlogSize)>
+    <!ELEMENT MlogSubframes (#PCDATA)>
+    <!ELEMENT MlogCores (#PCDATA)>
+    <!ELEMENT MlogSize (#PCDATA)>
+    <!ELEMENT Threads (systemThread, macIoThread, urllcThread)>
+    <!ELEMENT systemThread (core, priority, policy)>
+    <!ELEMENT macIoThread (core, priority, policy)>
+    <!ELEMENT urllcThread (core, priority, policy)>
+    <!ELEMENT core (#PCDATA)>
+    <!ELEMENT priority (#PCDATA)>
+    <!ELEMENT policy (#PCDATA)>
+    <!ELEMENT BbuPoolConfig (BbuPoolSleepEnable, BbuPoolThreadCorePriority, BbuPoolThreadCorePolicy, BbuPoolThreadCoreMask+)>
+    <!ELEMENT BbuPoolSleepEnable (#PCDATA)>
+    <!ELEMENT BbuPoolThreadCorePriority (#PCDATA)>
+    <!ELEMENT BbuPoolThreadCorePolicy (#PCDATA)>
+    <!ELEMENT BbuPoolThreadCoreMask (#PCDATA)>
+    <!ELEMENT PdcpConfig (snBit, discardTimer, outOfOrderDelivery, integerityConfigured, cryptoMode, ciphAlgo, intAlgo, ciphKey, intKey)>
+    <!ELEMENT snBit (#PCDATA)>
+    <!ELEMENT discardTimer (#PCDATA)>
+    <!ELEMENT outOfOrderDelivery (#PCDATA)>
+    <!ELEMENT integerityConfigured (#PCDATA)>
+    <!ELEMENT cryptoMode (#PCDATA)>
+    <!ELEMENT ciphAlgo (#PCDATA)>
+    <!ELEMENT intAlgo (#PCDATA)>
+    <!ELEMENT ciphKey (#PCDATA)>
+    <!ELEMENT intKey (#PCDATA)>
+    <!ELEMENT CellConfig (numCell, cellConfigFile+)>
+    <!ELEMENT numCell (#PCDATA)>
+    <!ELEMENT cellConfigFile (#PCDATA)>
+]>
+<MacConfig>
+    <version>21.06</version>
+    <Api>
+        <!-- pCfgVars->wlsCfg -->
+        <wls_dev_name>wls0</wls_dev_name>
+        <numBlockTypes>4</numBlockTypes>
+        <blockType>
+            <blockSize >0x400</blockSize>
+            <blockCount>8192</blockCount>
+        </blockType>
+        <blockType>
+            <blockSize>0x8000</blockSize>
+            <blockCount>4096</blockCount>
+        </blockType>
+        <blockType>
+            <blockSize>0x10000</blockSize>
+            <blockCount>2048</blockCount>
+        </blockType>
+        <blockType>
+            <blockSize>0x2A800</blockSize>
+            <blockCount>512</blockCount>
+        </blockType>
+    </Api>
+    <PhyLogs>
+        <IqLogs>
+            <dlIqLog>0</dlIqLog>
+            <ulIqLog>0</ulIqLog>
+            <iqLogDumpToFile>0</iqLogDumpToFile>
+        </IqLogs>
+        <DebugLogs>
+            <phyMlog>1</phyMlog>
+            <phyStats>1</phyStats>
+        </DebugLogs>
+    </PhyLogs>
+    <DPDK>
+        <!-- pCfgVars -->
+        <dpdkFilePrefix>gnb0</dpdkFilePrefix>
+        <dpdkMemorySize>20480</dpdkMemorySize>
+        <dpdkIovaMode>0</dpdkIovaMode>
+    </DPDK>
+    <DpdkSharedResource>
+        <PciF1uAddr>0000:18:00.1</PciF1uAddr>
+        <PciF1uAddr>0000:86:00.0</PciF1uAddr>
+        <mempoolName>fast_pkt</mempoolName>
+        <mempoolName>fast_pkt</mempoolName>
+    </DpdkSharedResource>
+    <MlogVars>
+        <MlogSubframes>128</MlogSubframes>
+        <MlogCores>40</MlogCores>
+        <MlogSize>10000</MlogSize>
+    </MlogVars>
+    <Threads>
+        <!-- pCfgVars -->
+        <systemThread>
+            <core>3</core>
+            <priority>0</priority>
+            <policy>0</policy>
+        </systemThread>
+        <macIoThread>
+            <core>19</core>
+            <priority>96</priority>
+            <policy>0</policy>
+        </macIoThread>
+        <urllcThread>
+            <core>15</core>
+            <priority>96</priority>
+            <policy>0</policy>
+        </urllcThread>
+    </Threads>
+    <BbuPoolConfig>
+        <!-- pCfgVars->bbuPoolInfo -->
+        <BbuPoolSleepEnable>1</BbuPoolSleepEnable>
+        <BbuPoolThreadCorePriority>94</BbuPoolThreadCorePriority>
+        <!-- SCHED_RR, SCHED_FIFO -->
+        <BbuPoolThreadCorePolicy>0</BbuPoolThreadCorePolicy>
+        <BbuPoolThreadCoreMask>0x7000</BbuPoolThreadCoreMask>
+        <BbuPoolThreadCoreMask>0x0</BbuPoolThreadCoreMask>
+        <BbuPoolThreadCoreMask>0x0</BbuPoolThreadCoreMask>
+        <BbuPoolThreadCoreMask>0x0</BbuPoolThreadCoreMask>
+    </BbuPoolConfig>
+    <PdcpConfig>
+        <!-- pCfgVars->pdcpCfg -->
+        <snBit>12</snBit>
+        <discardTimer>0</discardTimer>
+        <outOfOrderDelivery>1</outOfOrderDelivery>
+        <integerityConfigured>1</integerityConfigured>
+        <cryptoMode>0</cryptoMode>
+        <ciphAlgo>13</ciphAlgo>
+        <intAlgo>20</intAlgo>
+        <ciphKey>11,22,33,44,55,66,77,88,99,aa,bb,cc,dd,ee,ff,00</ciphKey>
+        <intKey>11,22,33,44,55,66,77,88,99,aa,bb,cc,dd,ee,ff,00</intKey>
+    </PdcpConfig>
+    <CellConfig>
+        <!-- pCfgVars -->
+        <numCell>1</numCell>
+        <cellConfigFile>cell1.xml</cellConfigFile>
+        <cellConfigFile>cell2.xml</cellConfigFile>
+        <cellConfigFile>cell3.xml</cellConfigFile>
+        <cellConfigFile>cell4.xml</cellConfigFile>
+    </CellConfig>
+</MacConfig>
