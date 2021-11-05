@@ -202,11 +202,8 @@ uint32_t xml_apply_uint64(char *string, uint64_t *dest)
 /*function for xml_xpath_find()*/
 int xml_node_latitude_examine(xmlNodePtr rootnode){
     xmlChar* text="text";
-    rootnode=rootnode->parent;
     if(rootnode->children==NULL||(!xmlStrcmp(rootnode->children->name,text)))
     {
-        
-        
         return 0;
     }
     xmlNodePtr curnode=rootnode->children;
@@ -256,25 +253,76 @@ uint32_t xml_xpath_find(xmlDocPtr doc,void *dest, xmlChar *xPath, ClineType type
     if (xmlXPathNodeSetIsEmpty(curObj->nodesetval)){
         printf ("Unable to find the xpath aims\"%s\".\n",xPath);
     }
+    
     xmlNodeSetPtr curNodeSet= curObj->nodesetval;
     //to creat the dataset
     dataset_latitude_array[0] = curNodeSet->nodeNr;
     dataset_latitude=1;
     curnode=curNodeSet->nodeTab[0];
-    
     for(i=0;dataset_latitude_array[i+1]=xml_node_latitude_examine(curnode);i++){
         curnode=curnode->children;
         dataset_latitude++;
     }
-   
-    //read the data
+    if(dataset_latitude==1&&dataset_latitude_array[0]==1&&type!=CLINE_TYPE_STR)
+    {
+        curnode=curNodeSet->nodeTab[0];
+        xmlChar string[500];
+        for ( i = 0; *(curnode->children->content+i)!='\0'; i++)
+        {
+            string[i]=*(curnode->children->content+i);
+        }
+        string[i]='\0';
+        for(i=0,j=0;1;i++)
+        {
+            if(string[i]=='\0')
+            {
+                xmlXPathFreeContext(curCtx);
+                xmlXPathFreeObject(curObj);
+                return 0;           
+                }
+            else if (string[i]==','||i==0)
+            {
+                if(i==0)
+                {
+                    i--;
+                }
+                if(type==CLINE_TYPE_STR){
+                break;
+                }
+                else if (type==CLINE_TYPE_UINT8_ARRAY){
+                xml_apply_uint8(curnode->children->content+i+1,dest+sizeof(uint8_t)*j);
+                }
+                else if(type==CLINE_TYPE_UINT32)
+                {
+                    xml_apply_uint32(curnode->children->content+i+1,dest+sizeof(uint32_t)*j);  
+                }
+                else if (type==CLINE_TYPE_UINT64)
+                {   
+                    xml_apply_uint64(curnode->children->content+i+1,dest+sizeof(uint64_t)*j);
+                }
+                else{
+                    printf("error type");
+                    return 1;
+                }
+                j++;
+            }
+            else
+            {
+                ;
+            }
+            if((i+1)==0)
+                {
+                    i++;
+                }
+        }
+    }
     if(dataset_latitude==1){
         
         xmlNodePtr curnode1;
         for(i=0;i<dataset_latitude_array[0];i++){
             curnode1=curNodeSet->nodeTab[i];
             if(type==CLINE_TYPE_STR){
-                *((xmlChar*)(dest+sizeof(xmlChar)*i))=curnode1->children->content;
+                *((xmlChar**)(dest+sizeof(xmlChar)*i))=curnode1->children->content;
             }
             else if (type==CLINE_TYPE_UINT8_ARRAY){
                 xml_apply_uint8(curnode1->children->content, dest+sizeof(uint8_t)*i);
@@ -299,22 +347,26 @@ uint32_t xml_xpath_find(xmlDocPtr doc,void *dest, xmlChar *xPath, ClineType type
         
         xmlNodePtr curnode1;
         xmlNodePtr curnode2;
+        
         for(i=0;i<dataset_latitude_array[0];i++){
+            
             curnode1=curNodeSet->nodeTab[i];
             curnode2=curnode1->children;
             for( j=0;j<dataset_latitude_array[1];j++){
                 if(type==CLINE_TYPE_STR){
-                *((xmlChar*)(dest+sizeof(xmlChar)*i*j+sizeof(xmlChar)*j))=curnode2->children->content;
+                *((xmlChar**)(dest+sizeof(xmlChar)*i*dataset_latitude_array[1]+sizeof(xmlChar)*j))=curnode2->children->content;
             }
             else if (type==CLINE_TYPE_UINT8_ARRAY){
-                xml_apply_uint8(curnode2->content, dest+sizeof(uint8_t)*i*j+sizeof(uint8_t)*j);
+                xml_apply_uint8(curnode2->children->content, dest+sizeof(uint8_t)*i*dataset_latitude_array[1]+sizeof(uint8_t)*j);
             }
             else if(type==CLINE_TYPE_UINT32){
-                xml_apply_uint32(curnode2->content,dest+sizeof(uint32_t)*i*j+sizeof(uint32_t)*j );
+                xml_apply_uint32(curnode2->children->content,(uint32_t* )(dest+sizeof(uint32_t)*i*dataset_latitude_array[1]+sizeof(uint32_t)*j) );
+                
+               
             }
             else if (type==CLINE_TYPE_UINT64)
             {
-                xml_apply_uint64(curnode2->content,dest+sizeof(uint64_t)*i*j+sizeof(uint64_t)*j);
+                xml_apply_uint64(curnode2->children->content,dest+sizeof(uint64_t)*i*dataset_latitude_array[1]+sizeof(uint64_t)*j);
             }
             else{
                 printf("error type");
@@ -335,17 +387,17 @@ uint32_t xml_xpath_find(xmlDocPtr doc,void *dest, xmlChar *xPath, ClineType type
                 for(k=0;j<dataset_latitude_array[2];j++){
                     curnode3=get_the_children(k,curnode2);
                     if(type==CLINE_TYPE_STR){
-                *((xmlChar*)(dest+sizeof(xmlChar)*i*j*k+sizeof(xmlChar)*j*k+sizeof(xmlChar)*l))=curnode3->children->content;
+                *((xmlChar**)(dest+sizeof(xmlChar)*i*dataset_latitude_array[1]*dataset_latitude_array[2]+sizeof(xmlChar)*j*dataset_latitude_array[2]+sizeof(xmlChar)*k))=curnode3->children->content;
             }
             else if (type==CLINE_TYPE_UINT8_ARRAY){
-                xml_apply_uint8(curnode3->content, dest+sizeof(uint8_t)*i*j*k+sizeof(uint8_t)*j*k+sizeof(uint8_t)*l);
+                xml_apply_uint8(curnode3->children->content, dest+sizeof(uint8_t)*i*dataset_latitude_array[1]*dataset_latitude_array[2]+sizeof(uint8_t)*dataset_latitude_array[2]*j+sizeof(uint8_t)*k);
             }
             else if(type==CLINE_TYPE_UINT32){
-                xml_apply_uint32(curnode3->content,dest+sizeof(uint32_t)*i*j*k+sizeof(uint32_t)*j*k+sizeof(uint32_t)*l);
+                xml_apply_uint32(curnode3->children->content,dest+sizeof(uint32_t)*i*dataset_latitude_array[1]*dataset_latitude_array[2]+sizeof(uint32_t)*dataset_latitude_array[2]*j+sizeof(uint32_t)*k);
             }
             else if (type==CLINE_TYPE_UINT64)
             {
-                xml_apply_uint64(curnode3->content,dest+sizeof(uint64_t)*i*j*k+sizeof(uint64_t)*j*k+sizeof(uint64_t)*l);
+                xml_apply_uint64(curnode3->children->content,dest+sizeof(uint64_t)*i*dataset_latitude_array[1]*dataset_latitude_array[2]+sizeof(uint64_t)*dataset_latitude_array[2]*j+sizeof(uint64_t)*k);
             }
             else{
                 printf("error type");
@@ -370,17 +422,17 @@ uint32_t xml_xpath_find(xmlDocPtr doc,void *dest, xmlChar *xPath, ClineType type
                     for(l=0;l<dataset_latitude_array[3];l++){
                         curnode4=get_the_children(l,curnode3);
                         if(type==CLINE_TYPE_STR){
-                *((xmlChar*)(dest+sizeof(xmlChar)*i*j*k*l+sizeof(xmlChar)*l*j*k+sizeof(xmlChar)*k*l)+sizeof(xmlChar)*l)=curnode4->children->content;
+                *((xmlChar**)(dest+sizeof(xmlChar)*i*dataset_latitude_array[1]*dataset_latitude_array[2]*dataset_latitude_array[3]+sizeof(xmlChar)*j*dataset_latitude_array[2]*dataset_latitude_array[3]+sizeof(xmlChar)*k*dataset_latitude_array[3]+sizeof(xmlChar)*l))=curnode4->children->content;
             }
             else if (type==CLINE_TYPE_UINT8_ARRAY){
-                xml_apply_uint8(curnode4->content, dest+sizeof(uint8_t)*i*j*k*l+sizeof(uint8_t)*l*j*k+sizeof(uint8_t)*k*l+sizeof(uint8_t)*l);
+                xml_apply_uint8(curnode4->children->content, dest+sizeof(uint8_t)*i*dataset_latitude_array[1]*dataset_latitude_array[2]*dataset_latitude_array[3]+sizeof(uint8_t)*j*dataset_latitude_array[2]*dataset_latitude_array[3]+sizeof(uint8_t)*k*dataset_latitude_array[3]+sizeof(uint8_t)*l);
             }
             else if(type==CLINE_TYPE_UINT32){
-                xml_apply_uint32(curnode4->content, dest+sizeof(uint32_t)*i*j*k*l+sizeof(uint32_t)*l*j*k+sizeof(uint32_t)*k*l+sizeof(uint32_t)*l);
+                xml_apply_uint32(curnode4->children->content, dest+sizeof(uint32_t)*i*dataset_latitude_array[1]*dataset_latitude_array[2]*dataset_latitude_array[3]+sizeof(uint32_t)*j*dataset_latitude_array[2]*dataset_latitude_array[3]+sizeof(uint32_t)*k*dataset_latitude_array[3]+sizeof(uint32_t)*l);
             }
             else if (type==CLINE_TYPE_UINT64)
             {
-                xml_apply_uint64(curnode4->content,dest+sizeof(uint64_t)*i*j*k*l+sizeof(uint64_t)*l*j*k+sizeof(uint64_t)*k*l+sizeof(uint64_t)*l);
+                xml_apply_uint64(curnode4->children->content,dest+sizeof(uint64_t)*i*dataset_latitude_array[1]*dataset_latitude_array[2]*dataset_latitude_array[3]+sizeof(uint64_t)*j*dataset_latitude_array[2]*dataset_latitude_array[3]+sizeof(uint64_t)*k*dataset_latitude_array[3]+sizeof(uint64_t)*l);
             }
             else{
                 printf("error type");
@@ -389,20 +441,18 @@ uint32_t xml_xpath_find(xmlDocPtr doc,void *dest, xmlChar *xPath, ClineType type
                     }
                     
                 }
-            }
-            
+            }  
         }
     }
     else{
         printf("latitude out of range");
-        return NULL;
+        return 0;
     }
     //free
+    
     xmlXPathFreeContext(curCtx);
     xmlXPathFreeObject(curObj);
-
     return 1;
-    
 }
 
 
@@ -424,7 +474,6 @@ uint32_t main(uint32_t argc, char **argv)
         printf("Failed to allocate parser context.\n");
         return 1;
     }
-
     doc = xmlCtxtReadFile(parser_ctx, argv[1], NULL, XML_PARSE_DTDVALID & XML_PARSE_NOBLANKS);
     if (doc == NULL)
     {
@@ -440,13 +489,7 @@ uint32_t main(uint32_t argc, char **argv)
         return 1;
     }
     printf("MacCfg read and validation successful.\n");
-    uint32_t dest[4];
-    xml_xpath_find(doc,dest,XMLPATH_BLOCK_SIZE,CLINE_TYPE_UINT32);
+    uint64_t dest[50];
     int i;
-    for ( i = 0; i < 4; i++)
-    {
-        printf("this is %d:%d\n",i,dest[i]);
-    }
-    
-    
+    xml_xpath_find(doc,dest,XMLPATH_CIPH_KEY,CLINE_TYPE_UINT64);
 }
